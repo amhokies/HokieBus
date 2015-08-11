@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import edu.vt.amm28053.hokiesbus.R;
 
@@ -14,6 +15,7 @@ import edu.vt.amm28053.hokiesbus.R;
  */
 public class FirstFragment extends Fragment {
 
+    private TextView tv;
 
     public FirstFragment() {
         // Required empty public constructor
@@ -23,9 +25,14 @@ public class FirstFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_first, container, false);
+        View v = inflater.inflate(R.layout.fragment_first, container, false);
+
+        tv = (TextView)v.findViewById(R.id.firstText);
+
+        return v;
     }
 
-
+    public void setTextView(String text) {
+        tv.setText(text);
+    }
 }

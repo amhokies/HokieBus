@@ -1,5 +1,10 @@
 package edu.vt.amm28053.hokiesbus;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -22,8 +27,9 @@ import java.util.concurrent.TimeUnit;
 import edu.vt.amm28053.hokiesbus.fragments.FirstFragment;
 import edu.vt.amm28053.hokiesbus.fragments.SecondFragment;
 import edu.vt.amm28053.hokiesbus.fragments.ThirdFragment;
+import edu.vt.amm28053.hokiesbus.services.BTUpdateService;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ServiceConnection {
     private DrawerLayout mDrawer;
     private Toolbar toolbar;
     private NavigationView nv;
@@ -31,7 +37,9 @@ public class MainActivity extends AppCompatActivity {
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     // Fragments
-    private Fragment one, two, three;
+    private FirstFragment one;
+    private SecondFragment two;
+    private ThirdFragment three;
 
     private static final String ONE_TAG = "Fragment.ONE";
     private static final String TWO_TAG = "Fragment.TWO";
@@ -62,7 +70,23 @@ public class MainActivity extends AppCompatActivity {
         setupDrawerContent(nv);
 
         showFragment(ONE_TAG);
-        beep();
+
+        Intent serviceIntent = new Intent(this, BTUpdateService.class);
+        startService(serviceIntent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent serviceIntent = new Intent(this, BTUpdateService.class);
+        bindService(serviceIntent, this, Context.BIND_IMPORTANT);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Intent serviceIntent = new Intent(this, BTUpdateService.class);
+        unbindService(this);
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
@@ -75,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
+
+
 
     public void selectDrawerItem(MenuItem menuItem) {
         // Create a new fragment and specify the planet to show based on
@@ -113,6 +139,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void updateActivity(int res) {
+        one.setTextView(String.valueOf(res));
+    }
+
     private void showFragment(String tag) {
         FragmentManager fragMan = getSupportFragmentManager();
 
@@ -121,13 +151,13 @@ public class MainActivity extends AppCompatActivity {
         if (f == null) {
             switch (tag) {
                 case ONE_TAG:
-                    f = new FirstFragment();
+                    f = one = new FirstFragment();
                     break;
                 case TWO_TAG:
-                    f = new SecondFragment();
+                    f = two = new SecondFragment();
                     break;
                 case THREE_TAG:
-                    f = new ThirdFragment();
+                    f = three =  new ThirdFragment();
                     break;
             }
         }
@@ -135,27 +165,16 @@ public class MainActivity extends AppCompatActivity {
         fragMan.beginTransaction().replace(R.id.flContent, f, tag).commit();
     }
 
-    private void beep() {
-        final Runnable beeper = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Log.d("HokieBus", "Going out to server... on thread " + Thread.currentThread().getName());
-                    Thread.sleep(3000);
-                    Log.d("HokieBus", "I'm back from the server!");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        Log.d("HokieBus", name.toShortString() + " connected to MainActivity");
 
-        final ScheduledFuture beeperHandle = scheduler.scheduleAtFixedRate(beeper, 0, 5, TimeUnit.SECONDS);
+        BTUpdateService btService = ((BTUpdateService.LocalBinder)service).getServiceInstance();
+        btService.bindToActivity(this);
+    }
 
-        scheduler.schedule(new Runnable() {
-            @Override
-            public void run() {
-                beeperHandle.cancel(true);
-            }
-        }, 60, TimeUnit.SECONDS);
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        Log.d("HokieBus", name.toShortString() + " disconnected from MainActivity");
     }
 }
