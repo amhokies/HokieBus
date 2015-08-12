@@ -80,7 +80,7 @@ public class BTUpdateService extends Service {
 
                 // Currently bound to activity
                 if (activity != null) {
-                    activity.updateActivity(res);
+                    //activity.updateActivity(res);
                 }
             }
         });
