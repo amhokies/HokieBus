@@ -1,6 +1,9 @@
 package edu.vt.amm28053.hokiesbus.transit;
 
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -11,22 +14,47 @@ public class BusRoute {
     private String shortName;
     private String longName;
 
-    private Map<Integer, BusStop> mScheduledStops;
-    private BusPattern mPattern;
+    private List<Bus> buses;
+
+    private Map<Integer, List<Departure>> scheduledDepartures;
 
     public BusRoute(String shortName, String longName) {
         this.shortName = shortName;
         this.longName = longName;
-        mScheduledStops = new HashMap<>();
-        mPattern = new BusPattern();
+        buses = new ArrayList<>();
+        scheduledDepartures = new HashMap<>();
     }
 
-    public void addStop(int id, String name) {
-        mScheduledStops.put(id, new BusStop(id, name));
+    public void addDeparture(int id, String name, String time) {
+
+        List<Departure> departuresForStop = scheduledDepartures.get(id);
+
+        if (departuresForStop == null) {
+            departuresForStop = new ArrayList<>();
+            scheduledDepartures.put(id, departuresForStop);
+        }
+
+        try {
+            departuresForStop.add(new Departure(new BusStop(name, id), time));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void addStop(BusStop stop) {
-        mScheduledStops.put(stop.getId(), stop);
+    public void addDeparture(BusStop stop, String time) {
+        addDeparture(stop.getCode(), stop.getName(), time);
+    }
+
+    public void addBus(Bus bus) {
+        buses.add(bus);
+    }
+
+    public void clearBuses() {
+        buses.clear();
+    }
+
+    public List<Bus> getBuses() {
+        return buses;
     }
 
     public String getShortName() {

@@ -1,22 +1,22 @@
 package edu.vt.amm28053.hokiesbus.transit;
 
 /**
- * Created by alex on 8/11/15.
+ * Created by alex on 8/12/15.
  */
 public class BusStop {
-    private int stopID;
-    private String stopName;
+    private final String name;
+    private final int code;
 
-    public BusStop(int id, String name) {
-        this.stopID = id;
-        this.stopName = name;
-    }
-
-    public int getId() {
-        return stopID;
+    public BusStop(String name, int code) {
+        this.name = name;
+        this.code = code;
     }
 
     public String getName() {
-        return stopName;
+        return name;
+    }
+
+    public int getCode() {
+        return code;
     }
 }

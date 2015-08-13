@@ -1,7 +1,6 @@
 package edu.vt.amm28053.hokiesbus.transit;
 
 import android.graphics.Color;
-import android.location.Location;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
@@ -16,22 +15,38 @@ import java.util.List;
  */
 public class BusPattern {
     private List<PatternPoint> mPoints = new ArrayList<>(100);
+    private String name;
+
+    public BusPattern(String name) {
+        this.name = name;
+    }
+
+    public void addPoint(PatternPoint p) {
+        mPoints.add(p);
+    }
 
     /**
      * Adds a point to the pattern
      * @param l the location of the point
      */
-    public void addPoint(LatLng l) {
-        mPoints.add(new PatternPoint(l));
+    public void addWayPoint(LatLng l) {
+        addPoint(new PatternPoint("Way Point", l, false, Integer.MIN_VALUE));
     }
 
     /**
      * Adds a point to the pattern at the given index
-     * @param rank the index to add at
      * @param l the location of the point
      */
-    public void addPoint(int rank, LatLng l) {
-        mPoints.add(rank, new PatternPoint(l));
+    public void addStop(String name, LatLng l, int stopNum) {
+        addPoint(new PatternPoint(name, l, true, stopNum));
+    }
+
+    public void clearPoints() {
+        mPoints.clear();
+    }
+
+    public String getName() {
+        return name;
     }
 
     /**
@@ -44,17 +59,36 @@ public class BusPattern {
         lineOptions.color(Color.parseColor("#ff6600"));
 
         for (PatternPoint point : mPoints) {
-            lineOptions.add(point.mLocation);
+            lineOptions.add(point.location);
         }
 
         return map.addPolyline(lineOptions);
     }
 
-    private class PatternPoint {
-        LatLng mLocation;
+    public static class PatternPoint {
+        String name;
+        boolean isBusStop;
+        LatLng location;
+        int stopCode;
 
-        private PatternPoint(LatLng l) {
-            mLocation = l;
+
+        public PatternPoint(String s, LatLng l, boolean b, int i) {
+            name = s;
+            isBusStop = b;
+            location = l;
+            stopCode = i;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("Name ").append(name).append("\n");
+            sb.append("Bus Stop: ").append(isBusStop).append("\n");
+            sb.append("Location: ").append(location).append("\n");
+            sb.append("Stop Code: ").append(stopCode).append("\n");
+
+            return sb.toString();
         }
     }
 }

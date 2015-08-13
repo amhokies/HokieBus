@@ -21,15 +21,21 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.vt.amm28053.hokiesbus.R;
+import edu.vt.amm28053.hokiesbus.transit.Bus;
 import edu.vt.amm28053.hokiesbus.transit.BusPattern;
 import edu.vt.amm28053.hokiesbus.transit.BusRoute;
 import edu.vt.amm28053.hokiesbus.transit.adapter.RouteAdapter;
+import edu.vt.amm28053.hokiesbus.utils.xml.maps.MainInfoWindowAdapter;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -54,13 +60,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final String PANEL_STATE_EXPANDED = "PANEL_STATE_EXPANDED";
     private static final String MAP_STATE_BUNDLE = "MAP_STATE";
 
+    private Map<String, GoogleMap.InfoWindowAdapter> adapterMap;
 
     private BusRoute currentBusRoute = null;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        this.listener = (MapFragmentListener)activity;
+        this.listener = (MapFragmentListener) activity;
     }
 
     @Override
@@ -68,12 +75,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_map, container, false);
 
-        mapView = (MapView)v.findViewById(R.id.map);
+        adapterMap = new HashMap<>();
 
-        currentRouteText = (TextView)v.findViewById(R.id.selectedRoute);
+        mapView = (MapView) v.findViewById(R.id.map);
 
-        mLayout = (SlidingUpPanelLayout)v.findViewById(R.id.sliding_layout);
-        panelStateImage = (ImageView)mLayout.findViewById(R.id.slide_state_image);
+        currentRouteText = (TextView) v.findViewById(R.id.selectedRoute);
+
+        mLayout = (SlidingUpPanelLayout) v.findViewById(R.id.sliding_layout);
+        panelStateImage = (ImageView) mLayout.findViewById(R.id.slide_state_image);
 
         mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
@@ -102,15 +111,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        routeList = (ListView)v.findViewById(R.id.routeList);
+        routeList = (ListView) v.findViewById(R.id.routeList);
         routeAdapter = new RouteAdapter(listener.getContext(), new ArrayList<BusRoute>());
 
         routeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
-                currentBusRoute = (BusRoute)adapter.getItemAtPosition(position);
+                currentBusRoute = (BusRoute) adapter.getItemAtPosition(position);
                 mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                 currentRouteText.setText(currentBusRoute.getLongName());
+                listener.onRouteSelected(currentBusRoute);
             }
         });
 
@@ -187,6 +197,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         routeAdapter.notifyDataSetChanged();
     }
 
+    public void showRoute(BusRoute route) {
+
+        if (map != null) {
+
+            map.clear();
+            adapterMap.clear();
+
+            for (Bus b : route.getBuses()) {
+                b.drawBus(map, adapterMap, getActivity().getLayoutInflater());
+                b.drawPattern(map);
+            }
+        }
+    }
+
     @Override
     public void onMapReady(GoogleMap map) {
         Log.d("HokieBus", "Google Map loaded");
@@ -196,26 +220,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         MapsInitializer.initialize(this.getActivity());
 
+        map.setInfoWindowAdapter(new MainInfoWindowAdapter(adapterMap));
+
         LatLng blacksburg = new LatLng(37.23, -80.417778);
 
         // Updates the location and zoom of the MapView
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(blacksburg, 14));
-
-        BusPattern bp = new BusPattern();
-        bp.addPoint(new LatLng(37.2285, -80.42286));
-        bp.addPoint(new LatLng(37.22777, -80.42396));
-        bp.addPoint(new LatLng(37.2269, -80.4246));
-        bp.addPoint(new LatLng(37.22645, -80.42529));
-        bp.addPoint(new LatLng(37.2289, -80.42745));
-        bp.addPoint(new LatLng(37.23045, -80.42864));
-        bp.addPoint(new LatLng(37.23148, -80.42883));
-        bp.addPoint(new LatLng(37.23133, -80.42998));
-        bp.addPoint(new LatLng(37.23168, -80.43289));
-        bp.addPoint(new LatLng(37.23163, -80.43419));
-        bp.drawPattern(map);
     }
 
     public interface MapFragmentListener {
         Context getContext();
+
+        void onRouteSelected(BusRoute route);
     }
 }

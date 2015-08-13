@@ -213,7 +213,20 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
     @Override
+    public void onLoadRouteFull(BusRoute route) {
+        if (map != null && currentFragmentTag.equals(MAP_TAG)) {
+            map.showRoute(route);
+        }
+    }
+
+    @Override
     public Context getContext() {
         return this;
+    }
+
+    @Override
+    public void onRouteSelected(BusRoute route) {
+        // Tell MapRetained to load route info
+        mapRetained.loadFullRoute(route);
     }
 }
