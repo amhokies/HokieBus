@@ -31,6 +31,9 @@ public class BusInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
         String[] args = marker.getSnippet().split("\n");
 
+        TextView title = (TextView)v.findViewById(R.id.title_bus);
+        title.setText(marker.getTitle());
+
         TextView patternName = (TextView)v.findViewById(R.id.pattern_name);
         TextView lastStop = (TextView)v.findViewById(R.id.last_stop);
         TextView passengers = (TextView)v.findViewById(R.id.passengers);

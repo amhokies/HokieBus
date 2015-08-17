@@ -45,6 +45,18 @@ public class BusPattern {
         mPoints.clear();
     }
 
+    public List<BusStop> getBusStops() {
+
+        List<BusStop> stops = new ArrayList<>(30);
+
+        for (PatternPoint p : mPoints) {
+            if (p.isBusStop) {
+                stops.add(new BusStop(p.name, p.stopCode, p.location));
+            }
+        }
+        return stops;
+    }
+
     public String getName() {
         return name;
     }

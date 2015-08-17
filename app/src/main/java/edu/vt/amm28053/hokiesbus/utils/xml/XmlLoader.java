@@ -18,6 +18,8 @@ import java.util.List;
 import edu.vt.amm28053.hokiesbus.transit.Bus;
 import edu.vt.amm28053.hokiesbus.transit.BusPattern;
 import edu.vt.amm28053.hokiesbus.transit.BusRoute;
+import edu.vt.amm28053.hokiesbus.transit.BusStop;
+import edu.vt.amm28053.hokiesbus.transit.Departure;
 
 /**
  * Created by alex on 8/11/15.
@@ -28,7 +30,8 @@ public class XmlLoader {
 
     static final String CURRENT_ROUTES_URL = "http://www.bt4u.org/webservices/bt4u_webservice.asmx/GetCurrentRoutes";
     static final String CURRENT_BUS_INFO_URL = "http://www.bt4u.org/webservices/bt4u_webservice.asmx/GetCurrentBusInfo";
-    static final String PATTERN_POINTS_URL = "http://www.bt4u.org//webservices/bt4u_webservice.asmx/GetScheduledPatternPoints";
+    static final String PATTERN_POINTS_URL = "http://www.bt4u.org/webservices/bt4u_webservice.asmx/GetScheduledPatternPoints";
+    static final String NEXT_DEPART_URL = "http://www.bt4u.org/webservices/bt4u_webservice.asmx/GetNextDepartures";
 
     public static List<BusRoute> getCurrentBusRoutes() throws XmlPullParserException, IOException {
         Reader reader = getXmlReader(CURRENT_ROUTES_URL);
@@ -63,6 +66,22 @@ public class XmlLoader {
             b.addPatternPoint(p);
         }
         reader.close();
+    }
+
+    public static List<Departure> loadNextDepartures(String routeShortName, BusStop bs) throws XmlPullParserException, IOException {
+        StringBuilder query = new StringBuilder(NEXT_DEPART_URL);
+        query.append("?routeShortName=");
+        query.append(URLEncoder.encode(routeShortName, "UTF-8"));
+        query.append("&stopCode=");
+        query.append(URLEncoder.encode(String.valueOf(bs.getCode()), "UTF-8"));
+
+        Reader reader = getXmlReader(query.toString());
+
+        List<Departure> departures = new DepartureParser(reader, bs).parse();
+
+        reader.close();
+
+        return departures;
     }
 
     static Reader getXmlReader(String urlStr) {

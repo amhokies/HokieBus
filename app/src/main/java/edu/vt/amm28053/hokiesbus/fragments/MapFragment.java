@@ -146,6 +146,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
 
         mapView.onCreate(mapState);
+        listener.onLoadRouteList();
 
         return v;
     }
@@ -204,6 +205,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             map.clear();
             adapterMap.clear();
 
+            route.drawStops(map, adapterMap, getActivity().getLayoutInflater());
+
             for (Bus b : route.getBuses()) {
                 b.drawBus(map, adapterMap, getActivity().getLayoutInflater());
                 b.drawPattern(map);
@@ -231,6 +234,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public interface MapFragmentListener {
         Context getContext();
 
+        void onLoadRouteList();
         void onRouteSelected(BusRoute route);
     }
 }

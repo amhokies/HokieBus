@@ -225,6 +225,11 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
     @Override
+    public void onLoadRouteList() {
+        mapRetained.loadRouteList();
+    }
+
+    @Override
     public void onRouteSelected(BusRoute route) {
         // Tell MapRetained to load route info
         mapRetained.loadFullRoute(route);

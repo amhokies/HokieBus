@@ -7,6 +7,8 @@ import android.widget.TextView;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 
+import org.w3c.dom.Text;
+
 import edu.vt.amm28053.hokiesbus.R;
 
 /**
@@ -30,6 +32,10 @@ public class StopInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         View v = inflater.inflate(R.layout.stop_info_layout, null);
 
         String[] args = marker.getSnippet().split("\n");
+
+
+        TextView title = (TextView)v.findViewById(R.id.title_stop);
+        title.setText(marker.getTitle());
 
         // Bus
         TextView bus = (TextView)v.findViewById(R.id.bus_name);

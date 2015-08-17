@@ -21,6 +21,8 @@ import edu.vt.amm28053.hokiesbus.MainActivity;
 import edu.vt.amm28053.hokiesbus.R;
 import edu.vt.amm28053.hokiesbus.transit.Bus;
 import edu.vt.amm28053.hokiesbus.transit.BusRoute;
+import edu.vt.amm28053.hokiesbus.transit.BusStop;
+import edu.vt.amm28053.hokiesbus.transit.Departure;
 import edu.vt.amm28053.hokiesbus.utils.xml.XmlLoader;
 
 /**
@@ -37,7 +39,6 @@ public class MapRetained extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         this.activity = (MapRetainedListener)activity;
-        new LoadRoutesAsync().execute();
     }
 
     @Override
@@ -52,6 +53,10 @@ public class MapRetained extends Fragment {
         this.activity = null;
     }
 
+    public void loadRouteList() {
+        new LoadRoutesAsync().execute();
+    }
+
     public void loadFullRoute(BusRoute route) {
         Log.d("HokieBus", "MapRetained began loading of route: " + route.getLongName());
         new LoadFullRouteAsync().execute(route);
@@ -61,7 +66,7 @@ public class MapRetained extends Fragment {
 
         @Override
         protected BusRoute doInBackground(BusRoute... params) {
-            BusRoute br = params[0];
+            BusRoute br = new BusRoute(params[0].getShortName(), params[0].getLongName());
 
             String routeShortName = br.getShortName();
             String routeLongName = br.getLongName();
@@ -76,14 +81,21 @@ public class MapRetained extends Fragment {
                 e.printStackTrace();
             }
 
-            br.clearBuses();
-
             // Now that the buses are loaded, load all of the pattern points for
             // the bus's pattern.
 
             for (Bus b: busesOnRoute) {
                 try {
                     XmlLoader.loadPatternPoints(b);
+
+                    List<BusStop> stops = b.getBusStops();
+
+                    for(BusStop bs : stops) {
+                        List<Departure> departures = XmlLoader.loadNextDepartures(routeShortName, bs);
+
+                        br.addDepartures(bs.getCode(), departures);
+                    }
+
                     br.addBus(b);
                 } catch (XmlPullParserException e) {
                     e.printStackTrace();

@@ -47,10 +47,11 @@
 
                 <TextView
                     android:id="@+id/selectedRoute"
+                    android:gravity="center_vertical|center_horizontal"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.8"
-                    android:text="Current Route: "/>
+                    android:text="Select a route"/>
 
                 <ImageView
                     android:id="@+id/slide_state_image"

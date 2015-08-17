@@ -12,7 +12,7 @@ public class Departure {
     private Date departureTime;
 
     private static final String DATE_FORMAT =
-            "M/d/yyyy 8:32:43 a";
+            "MM/dd/yyyy hh:mm:ss a";
 
     public Departure(BusStop stop, String date) throws ParseException {
         this(stop, new SimpleDateFormat(DATE_FORMAT).parse(date));
@@ -21,6 +21,14 @@ public class Departure {
     public Departure(BusStop stop, Date departureTime) {
         this.stop = stop;
         this.departureTime = departureTime;
+    }
+
+    public BusStop getBusStop() {
+        return stop;
+    }
+
+    public String getDepartureTime() {
+        return new SimpleDateFormat(DATE_FORMAT).format(departureTime);
     }
 
     public String getStopName() {

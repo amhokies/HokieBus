@@ -8,6 +8,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.List;
 import java.util.Map;
 
 import edu.vt.amm28053.hokiesbus.R;
@@ -84,6 +85,10 @@ public class Bus {
 
     public void clearPatternPoints() {
         pattern.clearPoints();
+    }
+
+    public List<BusStop> getBusStops() {
+        return pattern.getBusStops();
     }
 
     @Override

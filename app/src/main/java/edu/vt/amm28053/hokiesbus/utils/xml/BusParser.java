@@ -113,9 +113,9 @@ public class BusParser {
 
         if (shortName == null) return null;
 
-        BusStop bs = new BusStop(lastStopName, lastStopCode);
         BusPattern bp = new BusPattern(patternName);
         LatLng latLng = new LatLng(latitude, longitude);
+        BusStop bs = new BusStop(lastStopName, lastStopCode, latLng);
 
         return new Bus(shortName, bs, latLng, passengers, bp);
     }
